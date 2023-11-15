@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://api-maps.yandex.ru/2.1/?apikey={{ settings.YANDEX_MAPS_API_KEY }}&lang=ru_RU" type="text/javascript"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 400px;
+        }
+        #menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-family: 'Montserrat', sans-serif;
+        }
+        .coordinateInput {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .button {
+            margin-top: 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .colorPicker {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .colorOption {
+            margin: 5px;
+            width: 20px;
+            height: 20px;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .selectedColor {
+            border: 2px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div id="map" style="width: 100%; height: 1000px;"></div>
+    <div id="menu">
+        <div id="coordinateFields">
+            <div>
+                <label for="coordinateInput">Координаты:</label>
+                <input type="text" class="coordinateInput">
+            </div>
+        </div>
+        <button class="button" onclick="addCoordinateField()">Добавить координату</button>
+        <div class="colorPicker">
+            <label for="colorSelect">Выберите цвет:</label>
+            <div class="colorOption" style="background-color: red"></div>
+            <div class="colorOption" style="background-color: blue"></div>
+            <div class="colorOption" style="background-color: yellow"></div>
+            <div class="colorOption" style="background-color: purple"></div>
+            <div class="colorOption" style="background-color: green"></div>
+            <div class="colorOption" style="background-color: orange"></div>
+        </div>
+        <button class="button" onclick="highlightArea()">Выделить область</button>
+    </div>
+
+    <script>
+        var coordinates = [];
+        var myMap;
+        var selectedColor = "red";
+
+        function addCoordinateField() {
+            var coordinateFields = document.getElementById('coordinateFields');
+            var newInput = document.createElement('div');
+            newInput.innerHTML = `
+                <label for="coordinateInput">Координаты:</label>
+                <input type="text" class="coordinateInput">
+            `;
+            coordinateFields.appendChild(newInput);
+        }
+
+        function highlightArea() {
+            var color = selectedColor;
+            var coordinateInputs = document.getElementsByClassName('coordinateInput');
+            coordinates = [];
+
+            for (var i = 0; i < coordinateInputs.length; i++) {
+                var input = coordinateInputs[i];
+                var coordinatesStr = input.value.trim();
+
+                if (coordinatesStr) {
+                    var coords = coordinatesStr.split(',');
+                    if (coords.length === 2) {
+                        coordinates.push(coords);
+                    }
+                }
+            }
+
+            if (coordinates.length >= 3) {
+                if (myMap) {
+                    myMap.destroy();
+                }
+
+                myMap = new ymaps.Map('map', {
+                    center: coordinates[0],
+                    zoom: 10
+                });
+
+                var polygon = new ymaps.Polygon([coordinates], {}, {
+                    fillColor: color,
+                    strokeColor: 'rgba(0, 0, 0, 0.5)',
+                    strokeWidth: 2
+                });
+
+                myMap.geoObjects.add(polygon);
+            } else {
+                alert('Для выделения области нужно ввести как минимум три пары координат.');
+            }
+        }
+
+        document.querySelectorAll('.colorOption').forEach(function(option) {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.colorOption').forEach(function(el) {
+                    el.classList.remove('selectedColor');
+                });
+                option.classList.add('selectedColor');
+                selectedColor = option.style.backgroundColor;
+            });
+        });
+
+        ymaps.ready(function () {
+            myMap = new ymaps.Map('map', {
+                center: [55.755814, 37.617635],
+                zoom: 10
+            });
+        });
+    </script>
+</body>
+</html>
