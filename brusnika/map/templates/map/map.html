@@ -4,20 +4,308 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Hexagonal Map</title>
+  <title>ГИС-Аналитика</title>
   <script src="https://maps.api.2gis.ru/2.0/loader.js?pkg=full"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
-  .text-marker {
-  font-size: 20px;
-  color: black;
-  text-align: center;
-}
-</style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+    h3 {
+      font-family: 'Montserrat', sans-serif;
+    }
+    h4 {
+      font-family: 'Montserrat', sans-serif;
+    }
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .menu {
+      position: absolute;
+      width: 20%;
+      height: 1000px;
+      left: 2px;
+      top: 2px;
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .menu2 {
+      position: absolute;
+      width: 20%;
+      height: 1000px;
+      left: 2px;
+      top: 2px;
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .left{
+        display: inline-block;
+        background-color: #ffffff;
+        width: 170px;
+        height: 120px;
+        border-radius: 10px;
+        border-style: solid;
+      border-color: #727272;
+    }
+
+    .right{
+        display: inline-block;
+        background-color: #ffffff;
+        width: 170px;
+        height: 120px;
+        border-radius: 10px;
+        border-style: solid;
+        border-color: #727272;
+    }
+
+    .legend {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 10px;
+      border-radius: 10px; /* добавляем скругление углов */
+    }
+
+  </style>
+
 </head>
 <body>
   <div id="map" style="width: 100%; height: 1000px;"></div>
+          <button onclick="toggleMenu()" style="margin-left: auto; margin-right: 0;background-color: white;padding: 0; border: none; background: none;">✖</button>
+
+  <div class="legend">
+    <div style="background-color: rgba(0, 255, 0, 0.7); width: 20px; height: 20px; border-radius: 5px; display: inline-block;"></div> 0-70млн<br>
+    <div style="background-color: rgba(255, 255, 0, 0.7); width: 20px; height: 20px; border-radius: 5px;display: inline-block;"></div> 70млн-110млн<br>
+    <div style="background-color: rgba(255, 0, 0, 0.7); width: 20px; height: 20px;border-radius: 5px; display: inline-block;"></div> 110млн - ...<br>
+  </div>
+
+
+
+  <!-- Меню с графиком -->
+  <div class="menu" id="menu">
+    <button onclick="toggleMenu()" style="width:30px; height: 30px;margin-left: auto; margin-right: 0;background-color: white;padding: 0; border: none; background: none;">✖</button>
+
+    <h3>Динамика цен за 1м² по годам</h3>
+    <canvas id="priceChart"></canvas>
+    <h3>Распределние аварийных домов по районам</h3>
+    <div style="width:300px; height: 300px;">
+          <canvas id="doughnut-chart"></canvas>
+    </div>
+    <br>
+    <div class = "block">
+      <div class='left'>
+        <h2>0.7</h2>
+        <h4>Доступность террриторий</h4>
+      </div>
+        <div class='right'>
+         <h2>23.2</h2>
+         <h4>Разнообразие соц и комм. функц</h4>
+        </div>
+    </div>
+      <br>
+      <div class = "block">
+      <div class='left'>
+        <h2>1013</h2>
+        <h4>Плотность населения</h4>
+      </div>
+        <div class='right'>
+         <h2>465</h2>
+         <h4>Площадь<br>ㅤㅤлокациииㅤㅤ</h4>
+        </div>
+    </div>
+
+
+  </div>
+    <script>
+    function toggleMenu() {
+      var menu = document.getElementById('menu');
+      if (menu.style.display === 'none' || menu.style.display === '') {
+        menu.style.display = 'flex';
+      } else {
+        menu.style.display = 'none';
+      }
+    }
+
+    // Данные для графика
+    const years = ['2018', '2019', '2020', '2021', '2022', '2023'];
+    const prices = [67200, 70999, 72500, 80500, 95900, 103000];
+
+    // Получаем элемент canvas, в который будет отрисовываться график
+    const ctx = document.getElementById('priceChart').getContext('2d');
+
+    // Создаем объект графика
+    const priceChart = new Chart(ctx, {
+      type: 'line', // Тип графика - линейный
+      data: {
+        labels: years, // Метки оси X (года)
+        datasets: [{
+          label: 'Стоимость за 1м²', // Название набора данных
+          data: prices, // Данные для отображения на графике
+          borderColor: 'rgba(75, 192, 192, 1)', // Цвет линии графика
+          borderWidth: 2, // Ширина линии графика
+          pointBackgroundColor: 'rgba          (75, 192, 192, 1)', // Цвет точек на графике
+          pointRadius: 5 // Размер точек на графике
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true // Начинать ось Y с 0
+          }
+        }
+      }
+    });
+  </script>
+
+  <div class="menu2" id="menu2">
+    <button onclick="toggleMenu2()" style="width:30px; height: 30px;margin-left: auto; margin-right: 0;background-color: white;padding: 0; border: none; background: none;">✖</button>
+
+    <h3>Динамика цен за 1м² по годам</h3>
+    <canvas id="priceChart2"></canvas>
+    <h3>Распределние аварийных домов по районам</h3>
+    <div style="width:300px; height: 300px;">
+          <canvas id="doughnut-chart2"></canvas>
+    </div>
+    <br>
+    <div class = "block">
+      <div class='left'>
+        <h2>0.5</h2>
+        <h4>Доступность террриторий</h4>
+      </div>
+        <div class='right'>
+         <h2>12.2</h2>
+         <h4>Разнообразие соц и комм. функц</h4>
+        </div>
+    </div>
+      <br>
+      <div class = "block">
+      <div class='left'>
+        <h2>1300</h2>
+        <h4>Плотность населения</h4>
+      </div>
+        <div class='right'>
+         <h2>300</h2>
+         <h4>Площадь<br>ㅤㅤлокациииㅤㅤ</h4>
+        </div>
+    </div>
+      </div>
+  <script>
+    function toggleMenu2() {
+      var menu = document.getElementById('menu2');
+      if (menu.style.display === 'none' || menu.style.display === '') {
+        menu.style.display = 'flex';
+      } else {
+        menu.style.display = 'none';
+      }
+    }
+   // Данные для второго графика
+const years2 = ['2023', '2024', '2025', '2026', '2027', '2028'];
+const newPrices = [103000, 110000, 115000, 122000, 130000, 138000];
+
+// Получаем элемент canvas, в который будет отрисовываться второй график
+const ctx2 = document.getElementById('priceChart2').getContext('2d');
+
+// Создаем объект второго графика
+const priceChart2 = new Chart(ctx2, {
+  type: 'line', // Тип графика - линейный
+  data: {
+    labels: years2, // Метки оси X (года)
+    datasets: [{
+      label: 'Средняя стоимость жилья', // Название набора данных
+      data: newPrices, // Данные для отображения на графике
+      borderColor: 'rgba(255, 99, 132, 1)', // Цвет линии графика
+      borderWidth: 2, // Ширина линии графика
+      pointBackgroundColor: 'rgba(255, 99, 132, 1)', // Цвет точек на графике
+      pointRadius: 5 // Размер точек на графике
+    }]
+  },
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true // Начинать ось Y с 0
+      }
+    }
+  }
+});
+
+  </script>
+
+  <script>
+new Chart(document.getElementById("doughnut-chart"), {
+    type: 'doughnut',
+    data: {
+      labels: ["Уралмаш", "Сортировка", "Уктус", "Вторчермет"],
+      datasets: [
+        {
+          label: "Population (millions)",
+          backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9"],
+          data: [4,5,2,7]
+        }
+      ]
+    },
+    options: {
+      title: {
+        display: true,
+        text: 'Predicted world population (millions) in 2050'
+      }
+    }
+});
+new Chart(document.getElementById("doughnut-chart2"), {
+    type: 'doughnut',
+    data: {
+      labels: ["Уралмаш", "Сортировка", "Уктус", "Вторчермет"],
+      datasets: [
+        {
+          label: "Population (millions)",
+          backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9"],
+          data: [4,5,2,7]
+        }
+      ]
+    },
+    options: {
+      title: {
+        display: true,
+        text: 'Predicted world population (millions) in 2050'
+      }
+    }
+});
+  </script>
+</body>
+
   <script src="https://mapgl.2gis.com/api/js/v1"></script>
+
 <script>
+  function searchPharmaciesInRadius(apiKey, latitude, longitude, radius, obj) {
+  const apiUrl = `https://catalog.api.2gis.com/3.0/items?q=${obj}&type=branch&point=${longitude},${latitude}&radius=${radius}&key=${apiKey}`;
+
+  fetch(apiUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.result && data.result.items) {
+        const pharmaciesCount = data.result.items.length;
+        console.log(`Найдено ${obj}: ${pharmaciesCount}`);
+      } else {
+        console.error('Ошибка при получении данных от 2GIS API');
+      }
+    })
+    .catch(error => {
+      console.error('Произошла ошибка', error);
+    });
+}
+
+// Пример использования
 const apiKey = '0fc48f85-117d-4d93-84de-e20fa09d921a';
 
 var latitude = [
@@ -55,8 +343,11 @@ function createHexagon(center, size, rotationAngle) {
 }
 
 function showMenu(hexagon) {
-  // Здесь можно добавить код для отображения менюшки
-  alert('text');
+  // Получаем содержимое div с классом "menu"
+  const menuContent = document.getElementById('menu').innerHTML;
+  // Создаем и отображаем меню с содержимым из div
+  const menu = `<div class="menu" style="position: absolute;width: 20%; height: 1000px; right: 2px; top: 2px;  background-color: white;">${menuContent}</div>`;
+  document.body.insertAdjacentHTML('beforeend', menu);
 }
 
 function isPointInsideHexagon(point, hexagonPoints) {
@@ -78,6 +369,16 @@ function isPointInsideHexagon(point, hexagonPoints) {
   }
 
   return inside;
+}
+
+function shortenNumber(number) {
+    if (number >= 1000000000) {
+        return (number / 1000000000).toFixed(1) + ' млрд';
+    } else if (number >= 1000000) {
+        return (number / 1000000).toFixed(1) + ' млн';
+    } else {
+        return number.toString();
+    }
 }
 
 // Инициализация карты
@@ -105,7 +406,15 @@ DG.then(function () {
   let hexagonCenterTemp = '0';
 
   for (let g = 0; g < latitude.length; g++) {
+
     const targetCoordinates = [latitude[g], longitude[g]];
+
+
+    //var pharmacyText = searchPharmaciesInRadius(apiKey, latitude[g], longitude[g], 500,'аптека');
+    //var menuDiv = document.getElementById('menu');
+    //var newParagraph = document.createElement('p');
+    //newParagraph.textContent = pharmacyText;
+    //menuDiv.appendChild(newParagraph);
 
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
@@ -120,42 +429,80 @@ DG.then(function () {
         const hexagonPoints = createHexagon(hexagonCenter, hexagonSize, rotationAngle);
 
         if (isPointInsideHexagon(targetCoordinates, hexagonPoints)) {
-          const fillColor = 'rgba(255, 0, 0, 1.0)';
-
-
-          const Price =  price[g] * square[g];
+          let fillColor = 'rgba(68,148,74, 1.0)';
+          const Price =  103000 * square[g];
+          let a = false;
           const hexagonCenterMain = hexagonCenter.toString();
-
           const centerOfHexagon = DG.polygon(hexagonPoints).getBounds().getCenter();
-          const textElement = DG.marker(centerOfHexagon, {
-            icon: DG.divIcon({
-              html: `<div style="font-size: 20px;">${SumPrice}</div>`, // Установите желаемый размер шрифта здесь
-              iconSize: [100, 40],
-              className: 'hexagon-text',
-            }),
-          });
+          stringPrice = '';
+          if(g == 0){
+            stringPrice = shortenNumber(Price);
+            const textElement = DG.marker(centerOfHexagon, {
+              icon: DG.divIcon({
+                html: `<div style="font-size: 20px;">${stringPrice}</div>`,
+                iconSize: [100, 40],
+                className: 'hexagon-text',
+              }),
+            });
+            const hexagon = DG.polygon(hexagonPoints, {
+                fillColor: fillColor,
+                weight: 1,
+                color: 'black',
+              })
+              .on('click', function (event) {
+                toggleMenu2()
+              })
+              .on('mouseover', function () {
+                hexagon.setStyle({ fillColor: 'rgba(0, 0, 0, 1.0)' });
+              })
+              .on('mouseout', function () {
+                hexagon.setStyle({ fillColor: fillColor });
+              });
+              hexagon.addTo(map);
 
-
-          if(hexagonCenterMain == hexagonCenterTemp){
-             SumPrice += Price;
-             id_ += 1;
+            textElement.addTo(map);
+            hexagonCenterTemp_ = DG.polygon(hexagonPoints).getBounds().getCenter();
           }
           else{
+            const textElement = DG.marker(hexagonCenterTemp_, {
+              icon: DG.divIcon({
+                html: `<div style="font-size: 20px;">${shortenNumber(SumPrice)}</div>`,
+                iconSize: [100, 40],
+                className: 'hexagon-text',
+              }),
+            });
+
+            if(hexagonCenterMain == hexagonCenterTemp){
+              SumPrice += Price;
+              a = true;
+            }
+            else{
               textElement.addTo(map);
+              if(a){
+                map.removeLayer(hexagon);
+              }
+              a = false;
+              if (SumPrice < 70000000) {
+                fillColor = 'rgba(0,255,0,1.0)'; // Зеленый цвет
+              } else if (SumPrice >= 70000000 && SumPrice < 1100000) {
+                fillColor = 'rgba(255,255,0,1.0)'; // Желтый цвет
+              } else {
+                fillColor = 'rgba(255,0,0,1.0)'; // Красный цвет
+              }
               SumPrice = Price;
-              id_ = 0;
-          }
+            }
 
-          hexagonCenterTemp = hexagonCenter.toString();
+            hexagonCenterTemp = hexagonCenter.toString();
+            hexagonCenterTemp_ = DG.polygon(hexagonPoints).getBounds().getCenter();
 
-
-
-
-
-          const hexagon = DG.polygon(hexagonPoints, {
+            console.log(SumPrice, fillColor);
+            const hexagon = DG.polygon(hexagonPoints, {
             fillColor: fillColor,
             weight: 1,
             color: 'black',
+          })
+          .on('click', function (event) {
+            toggleMenu()
           })
           .on('mouseover', function () {
             hexagon.setStyle({ fillColor: 'rgba(0, 0, 0, 1.0)' });
@@ -165,12 +512,13 @@ DG.then(function () {
           });
           hexagon.addTo(map);
           hexagon.options.className = 'hexagon-button';
+          }
+
         }
       }
     }
   }
 });
-
 
 </script>
 </body>

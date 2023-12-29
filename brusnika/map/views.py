@@ -6,12 +6,11 @@ from .serializers import AdressesSerializer
 from rest_framework.response import Response
 import json
 from django.http import JsonResponse
-
+import requests
 
 def get_coord_data(request):
     adresses = Adresses.objects.all()
     return render(request, 'map/map.html',{'adresses': adresses})
-
 
 def yandex_maps_view(request):
     adresses = Adresses.objects.all()
